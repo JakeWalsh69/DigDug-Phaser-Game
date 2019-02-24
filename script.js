@@ -1,40 +1,60 @@
 // create a new scene name "Game"
 let gameScene = new Phaser.Scene('Game');
 
-// some parameters for our scene (our own customer variables - these are NOT part of the Phaser API)
-gameScene.init = function() {
-    this.playerSpeed = 1.5;
-    this.enemyMaxY = 280;
-    this.enemyMinY = 80;
-}
+// phaser game settings
+var config = {
+    type: Phaser.AUTO,
+    width: 800,
+    height: 600,
+    physics: {
+        default: 'arcade',
+        arcade: {
+            gravity: { y: 0 },
+            debug: false
+        }
+    },
+    scene: gameScene
+};
+  
+// New game instance based on config
+var game = new Phaser.Game(config);
+
+var player;
+var platforms;
+var cursors;
+var score = 0;
+var gameOver = false;
+var scoreText;
 
 gameScene.preload = function () {
-    // The base address for assets - using phaser lab exampleshere
-    this.load.setBaseURL('http://labs.phaser.io');
-
-    this.load.image('fire', 'assets/skies/fire.png');
-    this.load.image('sky', 'assets/skies/gradient25.png');
-    this.load.spritesheet('player', 'assets/sprites/dude.png', { frameWidth: 32, frameHeight: 48 });
-    this.load.spritesheet('flower', 'assets/sprites/flower-exo.png', { frameWidth: 32, frameHeight: 48 });
-    this.load.spritesheet('eyes', 'assets/sprites/slimeeyes.png', { frameWidth: 32, frameHeight: 48 });
-    this.load.spritesheet('purpleBaddie', 'assets/sprites/space-baddie-purple.png', { frameWidth: 32, frameHeight: 48 });
-    this.load.spritesheet('mine', 'assets/sprites/mine.png', { frameWidth: 32, frameHeight: 48 });
-    this.load.spritesheet('stripes', 'assets/sprites/stripes800x32-bg.png', { frameWidth: 32, frameHeight: 48 });
-    this.load.image('apple', 'assets/sprites/apple.png', { frameWidth: 32, frameHeight: 48 });
+    this.load.image('fire', 'http://labs.phaser.io/assets/skies/fire.png');
+    this.load.image('sky', 'http://labs.phaser.io/assets/skies/gradient25.png');
+    this.load.spritesheet('player', 'assets/dude.png', { frameWidth: 32, frameHeight: 48 });
+    this.load.spritesheet('flower', 'http://labs.phaser.io/assets/sprites/flower-exo.png', { frameWidth: 32, frameHeight: 48 });
+    this.load.spritesheet('eyes', 'http://labs.phaser.io/assets/sprites/slimeeyes.png', { frameWidth: 32, frameHeight: 48 });
+    this.load.spritesheet('purpleBaddie', 'http://labs.phaser.io/assets/sprites/space-baddie-purple.png', { frameWidth: 32, frameHeight: 48 });
+    this.load.spritesheet('mine', 'http://labs.phaser.io/assets/sprites/mine.png', { frameWidth: 32, frameHeight: 48 });
+    this.load.spritesheet('stripes', 'http://labs.phaser.io/assets/sprites/stripes800x32-bg.png', { frameWidth: 32, frameHeight: 48 });
+    this.load.image('apple', 'http://labs.phaser.io/assets/sprites/apple.png', { frameWidth: 32, frameHeight: 48 });
+    this.load.image('ground', 'http://labs.phaser.io/assets/sprites/platform.png', { frameWidth: 32, frameHeight: 48 });
 }
 
 gameScene.create = function () {
+    //  The platforms group contains the ground and the ledges we can jump on
+    platforms = this.physics.add.staticGroup();
+
+    //  Here we create the ground.
+    //  Scale it to fit the width of the game (the original sprite is 400x32 in size)
+    platforms.create(100, 221, 'ground').setScale(3).refreshBody();
+    
     //  Underground background for our game
-    let bg = this.add.image(400, 300, 'fire');
+    this.add.image(400, 300, 'fire');
 
     // Sky background for our game
     this.add.image(400, -175, 'sky');
 
     // Add Flower at the top of the screen
     this.add.image(750, 110, 'flower');
-
-    // Add player
-    this.player = this.add.image(400, 100, 'player');
 
     // Add stripes for enemy starting positions
     this.add.image(100, 300, 'stripes');
@@ -53,6 +73,16 @@ gameScene.create = function () {
     this.add.image(400, 230, 'stripes');
     this.add.image(400, 270, 'stripes');
     this.add.image(400, 310, 'stripes');
+
+    // Add player
+    this.player = this.add.image(400, 100, 'player');
+
+    // The player and its settings
+    player = this.physics.add.sprite(400, 100, 'dude');
+
+    //  Player physics properties. Give the little guy a slight bounce.
+    player.setBounce(0.2);
+    player.setCollideWorldBounds(true);
 
     this.eyesEnemies = this.add.group({
         key: 'eyes',
@@ -99,6 +129,36 @@ gameScene.create = function () {
         enemy.speed = 1;
     }, this);
 
+    //  Our player animations, turning, walking left and walking right.
+    this.anims.create({
+        key: 'left',
+        frames: this.anims.generateFrameNumbers('player', { start: 0, end: 3 }),
+        frameRate: 10,
+        repeat: -1
+    });
+
+    this.anims.create({
+        key: 'turn',
+        frames: [ { key: 'player', frame: 4 } ],
+        frameRate: 20
+    });
+
+    this.anims.create({
+        key: 'right',
+        frames: this.anims.generateFrameNumbers('player', { start: 5, end: 8 }),
+        frameRate: 10,
+        repeat: -1
+    });
+
+    //  Input Events
+    cursors = this.input.keyboard.createCursorKeys();
+
+    //  The score
+    scoreText = this.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000' });
+
+    //  Collide the player and the stars with the platforms
+    this.physics.add.collider(player, platforms);
+
     // Add apple
     let apple = this.add.image(400, 300, 'apple');
     apple.setScale(0.7);
@@ -109,6 +169,35 @@ gameScene.create = function () {
 }
 
 gameScene.update = function() {
+    if (gameOver)
+    {
+        return;
+    }
+
+    if (cursors.left.isDown)
+    {
+        player.setVelocityX(-160);
+
+        player.anims.play('left', true);
+    }
+    else if (cursors.right.isDown)
+    {
+        player.setVelocityX(160);
+
+        player.anims.play('right', true);
+    }
+    else
+    {
+        player.setVelocityX(0);
+
+        player.anims.play('turn');
+    }
+
+    if (cursors.up.isDown && player.body.touching.down)
+    {
+        player.setVelocityY(-330);
+    }
+    
     // only if the player is alive
     if (!this.isPlayerAlive) {
         return;
@@ -125,7 +214,7 @@ gameScene.update = function() {
     let numEyesEnemies = eyesEnemies.length;
 
     // eyes enemy movement
-    for (let i = 0; i < eyesEnemies.length; i++) {
+    for (let i = 0; i < numEyesEnemies; i++) {
 
         // move enemies
         eyesEnemies[i].y += eyesEnemies[i].speed;
@@ -212,14 +301,3 @@ gameScene.gameOver = function() {
         this.scene.restart();
     }, [], this);
 }
-
-// phaser game settings
-var config = {
-    type: Phaser.AUTO,
-    width: 800,
-    height: 600,
-    scene: gameScene
-};
-  
-// New game instance based on config
-var game = new Phaser.Game(config);
