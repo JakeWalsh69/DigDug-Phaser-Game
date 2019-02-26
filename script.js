@@ -23,6 +23,7 @@ var player;
 var platforms;
 var cursors;
 var score = 0;
+var apple;
 var gameOver = false;
 var scoreText;
 
@@ -45,7 +46,8 @@ gameScene.create = function () {
 
     //  Here we create the ground.
     //  Scale it to fit the width of the game (the original sprite is 400x32 in size)
-    platforms.create(100, 221, 'ground').setScale(3).refreshBody();
+    platforms.create(100, 650, 'ground').setScale(3).refreshBody();
+    platforms.create(100, -10, 'ground').setScale(3).refreshBody();
     
     //  Underground background for our game
     this.add.image(400, 300, 'fire');
@@ -73,15 +75,20 @@ gameScene.create = function () {
     this.add.image(400, 230, 'stripes');
     this.add.image(400, 270, 'stripes');
     this.add.image(400, 310, 'stripes');
-
+    this.add.image(400, 350, 'stripes');
+    this.add.image(400, 390, 'stripes');
+    this.add.image(400, 430, 'stripes');
+    this.add.image(400, 470, 'stripes');
+    this.add.image(400, 510, 'stripes');
+    this.add.image(400, 540, 'stripes');
+    
     // Add player
-    this.player = this.add.image(400, 100, 'player');
+    this.player = this.add.image(400, 1000, 'player');
 
     // The player and its settings
     player = this.physics.add.sprite(400, 100, 'dude');
 
     //  Player physics properties. Give the little guy a slight bounce.
-    player.setBounce(0.2);
     player.setCollideWorldBounds(true);
 
     this.eyesEnemies = this.add.group({
@@ -159,9 +166,8 @@ gameScene.create = function () {
     //  Collide the player and the stars with the platforms
     this.physics.add.collider(player, platforms);
 
-    // Add apple
-    let apple = this.add.image(400, 300, 'apple');
-    apple.setScale(0.7);
+    this.apple = this.add.sprite(400, 400, 'apple');
+    this.apple.setScale(0.7);
 
     this.isPlayerAlive = true;
 
@@ -176,16 +182,29 @@ gameScene.update = function() {
 
     if (cursors.left.isDown)
     {
-        player.setVelocityX(-160);
+        player.setVelocityX(-60);
 
         player.anims.play('left', true);
     }
     else if (cursors.right.isDown)
     {
-        player.setVelocityX(160);
+        player.setVelocityX(60);
 
         player.anims.play('right', true);
     }
+    else if (cursors.up.isDown && player.y > 100 && player.y < 600)
+    {
+        player.y -= 1;
+
+        player.anims.play('right', true);
+    }
+    else if (cursors.down.isDown && player.y < 535)
+    {
+        player.y += 1;
+
+        player.anims.play('left', true);
+    }
+
     else
     {
         player.setVelocityX(0);
@@ -193,11 +212,12 @@ gameScene.update = function() {
         player.anims.play('turn');
     }
 
-    if (cursors.up.isDown && player.body.touching.down)
-    {
-        player.setVelocityY(-330);
+    // apple collect
+    if (Phaser.Geom.Intersects.RectangleToRectangle(this.player.getBounds(), this.apple.getBounds())) {
+        this.score += 100;
+        this.apple.x = 1000;
     }
-    
+
     // only if the player is alive
     if (!this.isPlayerAlive) {
         return;
