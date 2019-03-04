@@ -26,6 +26,9 @@ var score = 0;
 var apple;
 var gameOver = false;
 var scoreText;
+var lives = 3;
+var livesText;
+var digDugText;
 
 gameScene.preload = function () {
     this.load.image('fire', 'http://labs.phaser.io/assets/skies/fire.png');
@@ -159,10 +162,7 @@ gameScene.create = function () {
 
     //  Input Events
     cursors = this.input.keyboard.createCursorKeys();
-
-    //  The score
-    scoreText = this.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000' });
-
+    
     //  Collide the player and the stars with the platforms
     this.physics.add.collider(player, platforms);
 
@@ -174,11 +174,35 @@ gameScene.create = function () {
     this.cameras.main.resetFX();
 }
 
+gameScene.drawScore = function()
+{
+    this.scoreText = this.add.text(16, 48, "Score: " + score, { fontSize: '32px', fill: 'gold'});
+}
+
+gameScene.drawLives = function()
+{
+    livesText = this.add.text(16, 16, "Lives: " + lives, { fontSize: '32px', fill: 'darkred' });
+}
+
+gameScene.drawDigDugTitle = function()
+{
+    digDugText = this.add.text(225, 0, "Dig Dug", { fontSize: '85px', fill: '#000' })
+}
+
 gameScene.update = function() {
     if (gameOver)
     {
         return;
     }
+
+    if (lives < 1){
+        alert("GAME OVER");
+        document.location.reload();
+        clearInterval(interval);
+    }
+
+    gameScene.drawDigDugTitle();
+    gameScene.drawLives();
 
     if (cursors.left.isDown)
     {
@@ -213,9 +237,10 @@ gameScene.update = function() {
     }
 
     // apple collect
-    if (Phaser.Geom.Intersects.RectangleToRectangle(this.player.getBounds(), this.apple.getBounds())) {
-        this.score += 100;
-        this.apple.x = 1000;
+    if (Phaser.Geom.Intersects.RectangleToRectangle(player.getBounds(), this.apple.getBounds())) {
+        score += 100;
+        this.apple.setX(10000);
+        gameScene.drawScore();
     }
 
     // only if the player is alive
@@ -247,7 +272,9 @@ gameScene.update = function() {
         }
 
         // enemy collsion
-        if (Phaser.Geom.Intersects.RectangleToRectangle(this.player.getBounds(), eyesEnemies[i].getBounds())) {
+        if (Phaser.Geom.Intersects.RectangleToRectangle(player.getBounds(), eyesEnemies[i].getBounds())) {
+            lives -= 1;
+            gameScene.drawLives();
             this.gameOver();
             break;
         }
@@ -271,7 +298,9 @@ gameScene.update = function() {
         }
 
         // enemy collsion
-        if (Phaser.Geom.Intersects.RectangleToRectangle(this.player.getBounds(), purpleEnemies[i].getBounds())) {
+        if (Phaser.Geom.Intersects.RectangleToRectangle(player.getBounds(), purpleEnemies[i].getBounds())) {
+            lives -= 1;
+            gameScene.drawLives();
             this.gameOver();
             break;
         }
@@ -295,7 +324,9 @@ gameScene.update = function() {
         }
 
         // enemy collsion
-        if (Phaser.Geom.Intersects.RectangleToRectangle(this.player.getBounds(), mineEnemies[i].getBounds())) {
+        if (Phaser.Geom.Intersects.RectangleToRectangle(player.getBounds(), mineEnemies[i].getBounds())) {
+            lives -= 1;
+            gameScene.drawLives();
             this.gameOver();
             break;
         }
@@ -321,3 +352,5 @@ gameScene.gameOver = function() {
         this.scene.restart();
     }, [], this);
 }
+
+var interval = setInterval(gameScene.create(), 10);
