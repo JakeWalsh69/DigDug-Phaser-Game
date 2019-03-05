@@ -29,6 +29,9 @@ var scoreText;
 var lives = 3;
 var livesText;
 var digDugText;
+var carrot;
+var mushroom;
+var pineapple;
 
 gameScene.preload = function () {
     this.load.image('fire', 'http://labs.phaser.io/assets/skies/fire.png');
@@ -39,6 +42,10 @@ gameScene.preload = function () {
     this.load.spritesheet('purpleBaddie', 'http://labs.phaser.io/assets/sprites/space-baddie-purple.png', { frameWidth: 32, frameHeight: 48 });
     this.load.spritesheet('mine', 'http://labs.phaser.io/assets/sprites/mine.png', { frameWidth: 32, frameHeight: 48 });
     this.load.spritesheet('stripes', 'http://labs.phaser.io/assets/sprites/stripes800x32-bg.png', { frameWidth: 32, frameHeight: 48 });
+    this.load.spritesheet('hoops', 'assets/stripes800x32-bg.png', { frameWidth: 32, frameHeight: 48 });
+    this.load.spritesheet('carrot', 'assets/carrot.png', { frameWidth: 32, frameHeight: 48 });
+    this.load.spritesheet('mushroom', 'assets/mushroom.png', { frameWidth: 32, frameHeight: 48 });
+    this.load.spritesheet('pineapple', 'assets/pineapple.png', { frameWidth: 32, frameHeight: 48 });
     this.load.image('apple', 'http://labs.phaser.io/assets/sprites/apple.png', { frameWidth: 32, frameHeight: 48 });
     this.load.image('ground', 'http://labs.phaser.io/assets/sprites/platform.png', { frameWidth: 32, frameHeight: 48 });
 }
@@ -65,12 +72,26 @@ gameScene.create = function () {
     this.add.image(100, 300, 'stripes');
     this.add.image(100, 340, 'stripes');
     this.add.image(100, 380, 'stripes');
+    this.add.image(130, 300, 'stripes');
+    this.add.image(130, 340, 'stripes');
+    this.add.image(130, 380, 'stripes');
+
+    this.add.image(270, 460, 'stripes');
+    this.add.image(270, 500, 'stripes');
+    this.add.image(270, 540, 'stripes');
     this.add.image(300, 460, 'stripes');
     this.add.image(300, 500, 'stripes');
     this.add.image(300, 540, 'stripes');
+
     this.add.image(600, 300, 'stripes');
     this.add.image(600, 260, 'stripes');
     this.add.image(600, 220, 'stripes');
+    this.add.image(630, 300, 'stripes');
+    this.add.image(630, 260, 'stripes');
+    this.add.image(630, 220, 'stripes');
+    this.add.image(660, 300, 'stripes');
+    this.add.image(660, 260, 'stripes');
+    this.add.image(660, 220, 'stripes');
 
     // Adding stripes for underground entrance
     this.add.image(400, 149, 'stripes');
@@ -84,12 +105,50 @@ gameScene.create = function () {
     this.add.image(400, 470, 'stripes');
     this.add.image(400, 510, 'stripes');
     this.add.image(400, 540, 'stripes');
+    this.add.image(370, 149, 'stripes');
+    this.add.image(370, 190, 'stripes');
+    this.add.image(370, 230, 'stripes');
+    this.add.image(370, 270, 'stripes');
+    this.add.image(370, 310, 'stripes');
+    this.add.image(370, 350, 'stripes');
+    this.add.image(370, 390, 'stripes');
+    this.add.image(370, 430, 'stripes');
+    this.add.image(370, 470, 'stripes');
+    this.add.image(370, 510, 'stripes');
+    this.add.image(370, 540, 'stripes');
+
+    //Adding tunnels to eyes enemies
+    this.add.image(370, 340, 'hoops');
+    this.add.image(340, 340, 'hoops');
+    this.add.image(310, 340, 'hoops');
+    this.add.image(280, 340, 'hoops');
+    this.add.image(250, 340, 'hoops');
+    this.add.image(220, 340, 'hoops');
+    this.add.image(190, 340, 'hoops');
+    this.add.image(160, 340, 'hoops');
+    this.add.image(130, 340, 'hoops');
+    this.add.image(70, 340, 'hoops');
+    this.add.image(40, 340, 'hoops');
+
+    //Adding tunnels to purple enemies
+    this.add.image(430, 260, 'hoops');
+    this.add.image(460, 260, 'hoops');
+    this.add.image(490, 260, 'hoops');
+    this.add.image(520, 260, 'hoops');
+    this.add.image(550, 260, 'hoops');
+    this.add.image(580, 260, 'hoops');
+    this.add.image(320, 500, 'hoops');
+    this.add.image(340, 500, 'hoops');
+    this.add.image(240, 500, 'hoops');
+    this.add.image(210, 500, 'hoops');
+    this.add.image(690, 260, 'hoops');
+    this.add.image(720, 260, 'hoops');
     
     // Add player
     this.player = this.add.image(400, 1000, 'player');
 
     // The player and its settings
-    player = this.physics.add.sprite(400, 100, 'dude');
+    player = this.physics.add.sprite(385, 100, 'dude');
 
     //  Player physics properties. Give the little guy a slight bounce.
     player.setCollideWorldBounds(true);
@@ -100,7 +159,7 @@ gameScene.create = function () {
         setXY: {
             x: 100,
             y: 300,
-            stepX: 0,
+            stepX: 30,
             stepY: 95
             },
         });  
@@ -113,9 +172,9 @@ gameScene.create = function () {
         key: 'purpleBaddie',
         repeat: 1,
         setXY: {
-            x: 300,
+            x: 270,
             y: 450,
-            stepX: 0,
+            stepX: 30,
             stepY: 100
         }
     });
@@ -128,9 +187,9 @@ gameScene.create = function () {
         key: 'mine',
         repeat: 1,
         setXY: {
-            x: 600,
+            x: 605,
             y: 220,
-            stepX: 0,
+            stepX: 50,
             stepY: 80
         }
     });
@@ -166,8 +225,20 @@ gameScene.create = function () {
     //  Collide the player and the stars with the platforms
     this.physics.add.collider(player, platforms);
 
-    this.apple = this.add.sprite(400, 400, 'apple');
+    // Create apple
+    this.apple = this.add.sprite(385, 200, 'apple');
     this.apple.setScale(0.7);
+
+    // Create Carrot
+    this.carrot = this.add.sprite(220, 500, 'carrot');
+    this.carrot.setScale(1.2);
+
+    // Create Pineapple
+    this.pineapple = this.add.sprite(710, 260, 'pineapple');
+    this.pineapple.setScale(1.2);
+
+    //Create Mushroom
+    this.mushroom = this.add.sprite(50, 340, 'mushroom');
 
     this.isPlayerAlive = true;
 
@@ -200,9 +271,6 @@ gameScene.update = function() {
         document.location.reload();
         clearInterval(interval);
     }
-
-    gameScene.drawDigDugTitle();
-    gameScene.drawLives();
 
     if (cursors.left.isDown)
     {
@@ -240,6 +308,29 @@ gameScene.update = function() {
     if (Phaser.Geom.Intersects.RectangleToRectangle(player.getBounds(), this.apple.getBounds())) {
         score += 100;
         this.apple.setX(10000);
+        gameScene.drawScore();
+        gameScene.drawDigDugTitle();
+        gameScene.drawLives();
+    }
+
+    // carrot collect
+    if (Phaser.Geom.Intersects.RectangleToRectangle(player.getBounds(), this.carrot.getBounds())) {
+        score += 200;
+        this.carrot.setX(10000);
+        gameScene.drawScore();
+    }
+
+    // mushroom collect
+    if (Phaser.Geom.Intersects.RectangleToRectangle(player.getBounds(), this.mushroom.getBounds())) {
+        score += 200;
+        this.mushroom.setX(10000);
+        gameScene.drawScore();
+    }
+
+    // pineapple collect
+    if (Phaser.Geom.Intersects.RectangleToRectangle(player.getBounds(), this.pineapple.getBounds())) {
+        score += 200;
+        this.pineapple.setX(10000);
         gameScene.drawScore();
     }
 
