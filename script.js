@@ -2,7 +2,7 @@
 let gameScene = new Phaser.Scene('Game');
 
 // phaser game settings
-var config = {
+var game = new Phaser.Game({
     type: Phaser.AUTO,
     width: 800,
     height: 600,
@@ -14,10 +14,7 @@ var config = {
         }
     },
     scene: gameScene
-};
-  
-// New game instance based on config
-var game = new Phaser.Game(config);
+});
 
 var player;
 var platforms;
@@ -32,6 +29,9 @@ var digDugText;
 var carrot;
 var mushroom;
 var pineapple;
+var bullets;
+var shootKey;
+var enemyNumber = 6;
 
 gameScene.preload = function () {
     this.load.image('fire', 'http://labs.phaser.io/assets/skies/fire.png');
@@ -46,6 +46,7 @@ gameScene.preload = function () {
     this.load.spritesheet('carrot', 'assets/carrot.png', { frameWidth: 32, frameHeight: 48 });
     this.load.spritesheet('mushroom', 'assets/mushroom.png', { frameWidth: 32, frameHeight: 48 });
     this.load.spritesheet('pineapple', 'assets/pineapple.png', { frameWidth: 32, frameHeight: 48 });
+    this.load.spritesheet('laser', 'assets/bullet.png', { frameWidth: 32, frameHeight: 48 });
     this.load.image('apple', 'http://labs.phaser.io/assets/sprites/apple.png', { frameWidth: 32, frameHeight: 48 });
     this.load.image('ground', 'http://labs.phaser.io/assets/sprites/platform.png', { frameWidth: 32, frameHeight: 48 });
 }
@@ -153,6 +154,9 @@ gameScene.create = function () {
     //  Player physics properties. Give the little guy a slight bounce.
     player.setCollideWorldBounds(true);
 
+    bullets = this.physics.add.sprite(player.x+30, player.y+15, 'laser');
+    bullets.setScale(0.4);
+
     this.eyesEnemies = this.add.group({
         key: 'eyes',
         repeat: 1,
@@ -245,10 +249,10 @@ gameScene.create = function () {
     this.cameras.main.resetFX();
 }
 
-gameScene.drawScore = function()
-{
-    this.scoreText = this.add.text(16, 48, "Score: " + score, { fontSize: '32px', fill: 'gold'});
-}
+// gameScene.drawScore = function()
+// {
+//     this.scoreText = this.add.text(16, 48, "Score: " + score, { fontSize: '32px', fill: 'gold'});
+// }
 
 gameScene.drawLives = function()
 {
@@ -275,24 +279,31 @@ gameScene.update = function() {
     if (cursors.left.isDown)
     {
         player.setVelocityX(-60);
+        bullets.x = player.x-28;
 
         player.anims.play('left', true);
     }
+    
     else if (cursors.right.isDown)
     {
         player.setVelocityX(60);
+        bullets.x = player.x+28;
 
         player.anims.play('right', true);
     }
     else if (cursors.up.isDown && player.y > 100 && player.y < 600)
     {
         player.y -= 1;
+        bullets.y = player.y+15;
+        bullets.x = player.x+28;
 
         player.anims.play('right', true);
     }
     else if (cursors.down.isDown && player.y < 535)
     {
         player.y += 1;
+        bullets.y = player.y+15;
+        bullets.x = player.x-28;
 
         player.anims.play('left', true);
     }
@@ -304,11 +315,16 @@ gameScene.update = function() {
         player.anims.play('turn');
     }
 
+    // if (player.y >= 117 && cursors.left.isDown)
+    // {
+    //     this.add.image(player.x-50, player.y+30, 'hoops');
+    // }
+
     // apple collect
     if (Phaser.Geom.Intersects.RectangleToRectangle(player.getBounds(), this.apple.getBounds())) {
         score += 100;
         this.apple.setX(10000);
-        gameScene.drawScore();
+        // gameScene.drawScore();
         gameScene.drawDigDugTitle();
         gameScene.drawLives();
     }
@@ -317,22 +333,24 @@ gameScene.update = function() {
     if (Phaser.Geom.Intersects.RectangleToRectangle(player.getBounds(), this.carrot.getBounds())) {
         score += 200;
         this.carrot.setX(10000);
-        gameScene.drawScore();
+        // gameScene.drawScore();
     }
 
     // mushroom collect
     if (Phaser.Geom.Intersects.RectangleToRectangle(player.getBounds(), this.mushroom.getBounds())) {
         score += 200;
         this.mushroom.setX(10000);
-        gameScene.drawScore();
+        // gameScene.drawScore();
     }
 
     // pineapple collect
     if (Phaser.Geom.Intersects.RectangleToRectangle(player.getBounds(), this.pineapple.getBounds())) {
         score += 200;
         this.pineapple.setX(10000);
-        gameScene.drawScore();
+        // gameScene.drawScore();
     }
+
+    if (Phaser.Geom.Intersects.RectangleToRectangle(bullets.getBounds(), this.eyesEnemies))
 
     // only if the player is alive
     if (!this.isPlayerAlive) {
@@ -369,6 +387,12 @@ gameScene.update = function() {
             this.gameOver();
             break;
         }
+        if (Phaser.Geom.Intersects.RectangleToRectangle(bullets.getBounds(), eyesEnemies[i].getBounds())) {
+            score += 500;
+            eyesEnemies[i].x = 10000;
+            // gameScene.drawScore();
+            enemyNumber -= 1;
+        }
     }
 
     // purple baddie movement variables
@@ -395,6 +419,14 @@ gameScene.update = function() {
             this.gameOver();
             break;
         }
+
+        // Enemy Killed
+        if (Phaser.Geom.Intersects.RectangleToRectangle(bullets.getBounds(), purpleEnemies[i].getBounds())) {
+            score += 500;
+            purpleEnemies[i].x = 10000;
+            // gameScene.drawScore();
+            enemyNumber -= 1;
+        }
     }
 
     // mine enemy movement variables
@@ -420,6 +452,14 @@ gameScene.update = function() {
             gameScene.drawLives();
             this.gameOver();
             break;
+        }
+
+        // Enemy Killed
+        if (Phaser.Geom.Intersects.RectangleToRectangle(bullets.getBounds(), mineEnemies[i].getBounds())) {
+            score += 500;
+            mineEnemies[i].x = 10000;
+            // gameScene.drawScore();
+            enemyNumber -= 1;
         }
     }
 }
