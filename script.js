@@ -249,10 +249,10 @@ gameScene.create = function () {
     this.cameras.main.resetFX();
 }
 
-// gameScene.drawScore = function()
-// {
-//     this.scoreText = this.add.text(16, 48, "Score: " + score, { fontSize: '32px', fill: 'gold'});
-// }
+gameScene.drawScore = function()
+{
+    this.scoreText = this.add.text(16, 48, "Score: " + score, { fontSize: '32px', fill: 'gold'});
+}
 
 gameScene.drawLives = function()
 {
@@ -315,11 +315,6 @@ gameScene.update = function() {
         player.anims.play('turn');
     }
 
-    // if (player.y >= 117 && cursors.left.isDown)
-    // {
-    //     this.add.image(player.x-50, player.y+30, 'hoops');
-    // }
-
     // apple collect
     if (Phaser.Geom.Intersects.RectangleToRectangle(player.getBounds(), this.apple.getBounds())) {
         score += 100;
@@ -349,8 +344,6 @@ gameScene.update = function() {
         this.pineapple.setX(10000);
         // gameScene.drawScore();
     }
-
-    if (Phaser.Geom.Intersects.RectangleToRectangle(bullets.getBounds(), this.eyesEnemies))
 
     // only if the player is alive
     if (!this.isPlayerAlive) {
@@ -383,6 +376,7 @@ gameScene.update = function() {
         // enemy collsion
         if (Phaser.Geom.Intersects.RectangleToRectangle(player.getBounds(), eyesEnemies[i].getBounds())) {
             lives -= 1;
+            enemyNumber = 6;
             gameScene.drawLives();
             this.gameOver();
             break;
@@ -390,8 +384,18 @@ gameScene.update = function() {
         if (Phaser.Geom.Intersects.RectangleToRectangle(bullets.getBounds(), eyesEnemies[i].getBounds())) {
             score += 500;
             eyesEnemies[i].x = 10000;
-            // gameScene.drawScore();
             enemyNumber -= 1;
+            if (enemyNumber == 1)
+            {
+                gameScene.drawScore();
+            }
+            if (enemyNumber < 1)
+            {
+            gameScene.drawScore();
+            alert("MISSION COMPLETE");
+            document.location.reload();
+            clearInterval(interval);
+            }
         }
     }
 
@@ -415,6 +419,7 @@ gameScene.update = function() {
         // enemy collsion
         if (Phaser.Geom.Intersects.RectangleToRectangle(player.getBounds(), purpleEnemies[i].getBounds())) {
             lives -= 1;
+            enemyNumber = 6;
             gameScene.drawLives();
             this.gameOver();
             break;
@@ -424,8 +429,18 @@ gameScene.update = function() {
         if (Phaser.Geom.Intersects.RectangleToRectangle(bullets.getBounds(), purpleEnemies[i].getBounds())) {
             score += 500;
             purpleEnemies[i].x = 10000;
-            // gameScene.drawScore();
             enemyNumber -= 1;
+            if (enemyNumber == 1)
+            {
+                gameScene.drawScore();
+            }
+            if (enemyNumber < 1)
+            {
+            gameScene.drawScore();
+            alert("MISSION COMPLETE");
+            document.location.reload();
+            clearInterval(interval);
+            }
         }
     }
 
@@ -449,6 +464,7 @@ gameScene.update = function() {
         // enemy collsion
         if (Phaser.Geom.Intersects.RectangleToRectangle(player.getBounds(), mineEnemies[i].getBounds())) {
             lives -= 1;
+            enemyNumber = 6;
             gameScene.drawLives();
             this.gameOver();
             break;
@@ -458,8 +474,17 @@ gameScene.update = function() {
         if (Phaser.Geom.Intersects.RectangleToRectangle(bullets.getBounds(), mineEnemies[i].getBounds())) {
             score += 500;
             mineEnemies[i].x = 10000;
-            // gameScene.drawScore();
             enemyNumber -= 1;
+            if (enemyNumber == 1)
+            {
+                gameScene.drawScore();
+            }
+            if (enemyNumber < 1)
+            {
+            alert("MISSION COMPLETE");
+            document.location.reload();
+            clearInterval(interval);
+            }
         }
     }
 }
