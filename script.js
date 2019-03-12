@@ -32,6 +32,7 @@ var pineapple;
 var bullets;
 var shootKey;
 var enemyNumber = 6;
+var fruitNumber = 4;
 
 gameScene.preload = function () {
     this.load.image('fire', 'http://labs.phaser.io/assets/skies/fire.png');
@@ -51,7 +52,14 @@ gameScene.preload = function () {
     this.load.image('ground', 'http://labs.phaser.io/assets/sprites/platform.png', { frameWidth: 32, frameHeight: 48 });
 }
 
+gameScene.createTunnel = function()
+{
+    this.load.image(player.x+1, player.y, 'stripes');
+}
+
 gameScene.create = function () {
+    enemyNumber = 6;
+    fruitNumber = 4;
     //  The platforms group contains the ground and the ledges we can jump on
     platforms = this.physics.add.staticGroup();
 
@@ -288,6 +296,7 @@ gameScene.update = function() {
     {
         player.setVelocityX(60);
         bullets.x = player.x+28;
+        gameScene.createTunnel();
 
         player.anims.play('right', true);
     }
@@ -318,31 +327,67 @@ gameScene.update = function() {
     // apple collect
     if (Phaser.Geom.Intersects.RectangleToRectangle(player.getBounds(), this.apple.getBounds())) {
         score += 100;
+        fruitNumber -=1;
+        this.add.text(this.apple.x, this.apple.y, "200", { fontSize: '16px', fill: 'black'});
         this.apple.setX(10000);
         // gameScene.drawScore();
         gameScene.drawDigDugTitle();
         gameScene.drawLives();
+        if (enemyNumber < 1 && fruitNumber < 1)
+            {
+                gameScene.drawScore();
+                alert("MISSION COMPLETE");
+                document.location.reload();
+                clearInterval(interval);
+            }
     }
 
     // carrot collect
     if (Phaser.Geom.Intersects.RectangleToRectangle(player.getBounds(), this.carrot.getBounds())) {
         score += 200;
+        fruitNumber -=1;
+        this.add.text(this.carrot.x, this.carrot.y, "200", { fontSize: '16px', fill: 'black'});
         this.carrot.setX(10000);
         // gameScene.drawScore();
+        if (enemyNumber < 1 && fruitNumber < 1)
+            {
+                gameScene.drawScore();
+                alert("MISSION COMPLETE");
+                document.location.reload();
+                clearInterval(interval);
+            }
     }
 
     // mushroom collect
     if (Phaser.Geom.Intersects.RectangleToRectangle(player.getBounds(), this.mushroom.getBounds())) {
         score += 200;
+        fruitNumber -=1;
+        this.add.text(this.mushroom.x, this.mushroom.y, "200", { fontSize: '16px', fill: 'black'});
         this.mushroom.setX(10000);
         // gameScene.drawScore();
+        if (enemyNumber < 1 && fruitNumber < 1)
+            {
+                gameScene.drawScore();
+                alert("MISSION COMPLETE");
+                document.location.reload();
+                clearInterval(interval);
+            }
     }
 
     // pineapple collect
     if (Phaser.Geom.Intersects.RectangleToRectangle(player.getBounds(), this.pineapple.getBounds())) {
         score += 200;
+        fruitNumber -=1;
+        this.add.text(this.pineapple.x, this.pineapple.y, "200", { fontSize: '16px', fill: 'black'});
         this.pineapple.setX(10000);
         // gameScene.drawScore();
+        if (enemyNumber < 1 && fruitNumber < 1)
+            {
+                gameScene.drawScore();
+                alert("MISSION COMPLETE");
+                document.location.reload();
+                clearInterval(interval);
+            }
     }
 
     // only if the player is alive
@@ -383,18 +428,15 @@ gameScene.update = function() {
         }
         if (Phaser.Geom.Intersects.RectangleToRectangle(bullets.getBounds(), eyesEnemies[i].getBounds())) {
             score += 500;
+            this.add.text(eyesEnemies[i].x, eyesEnemies[i].y, "500", { fontSize: '16px', fill: 'black'});
             eyesEnemies[i].x = 10000;
             enemyNumber -= 1;
-            if (enemyNumber == 1)
+            if (enemyNumber < 1 && fruitNumber < 1)
             {
                 gameScene.drawScore();
-            }
-            if (enemyNumber < 1)
-            {
-            gameScene.drawScore();
-            alert("MISSION COMPLETE");
-            document.location.reload();
-            clearInterval(interval);
+                alert("MISSION COMPLETE");
+                document.location.reload();
+                clearInterval(interval);
             }
         }
     }
@@ -428,18 +470,15 @@ gameScene.update = function() {
         // Enemy Killed
         if (Phaser.Geom.Intersects.RectangleToRectangle(bullets.getBounds(), purpleEnemies[i].getBounds())) {
             score += 500;
+            this.add.text(purpleEnemies[i].x, purpleEnemies[i].y, "500", { fontSize: '16px', fill: 'black'});
             purpleEnemies[i].x = 10000;
             enemyNumber -= 1;
-            if (enemyNumber == 1)
+            if (enemyNumber < 1 && fruitNumber < 1)
             {
                 gameScene.drawScore();
-            }
-            if (enemyNumber < 1)
-            {
-            gameScene.drawScore();
-            alert("MISSION COMPLETE");
-            document.location.reload();
-            clearInterval(interval);
+                alert("MISSION COMPLETE");
+                document.location.reload();
+                clearInterval(interval);
             }
         }
     }
@@ -473,17 +512,15 @@ gameScene.update = function() {
         // Enemy Killed
         if (Phaser.Geom.Intersects.RectangleToRectangle(bullets.getBounds(), mineEnemies[i].getBounds())) {
             score += 500;
+            this.add.text(mineEnemies[i].x, mineEnemies[i].y, "500", { fontSize: '16px', fill: 'black'});
             mineEnemies[i].x = 10000;
             enemyNumber -= 1;
-            if (enemyNumber == 1)
+            if (enemyNumber < 1 && fruitNumber < 1)
             {
                 gameScene.drawScore();
-            }
-            if (enemyNumber < 1)
-            {
-            alert("MISSION COMPLETE");
-            document.location.reload();
-            clearInterval(interval);
+                alert("MISSION COMPLETE");
+                document.location.reload();
+                clearInterval(interval);
             }
         }
     }
